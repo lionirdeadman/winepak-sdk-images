@@ -202,9 +202,14 @@ modules:
       - type: archive
         url: https://github.com/wine-staging/wine-staging/archive/v3.16.tar.gz
         sha256: b7955b90e4cb415179a5a44f0511455ab4c0adc273753167a92f5d6a49a684aa
+      - type: arhive
+        url: https://github.com/sarnex/wine-d3d9-patches/archive/wine-d3d9-3.16.tar.gz
+        sha256: 7102b17adf5baf73f1bb4bb325bca9a8a32f25b611f1c4f4048397a1fa6e9a60
       - type: shell
         commands:
           - ./patches/patchinstall.sh DESTDIR=$(pwd) --all
+          - patch -i staging-helper.patch
+          - patch -i wine-d3d9.patch
     post-install:
       - rm -rf /usr/share/wine/gecko
       - ln -s /usr/lib/gecko /usr/share/wine/gecko
