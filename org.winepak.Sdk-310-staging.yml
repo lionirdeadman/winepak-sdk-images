@@ -202,9 +202,15 @@ modules:
       - type: archive
         url: https://github.com/wine-staging/wine-staging/archive/v3.10.tar.gz
         sha256: 3f44f24dab0d59e08a2395960756a65485f0f5201dde2f8381d680ff235cf22d
+      - type: archive
+        url: https://github.com/sarnex/wine-d3d9-patches/archive/wine-d3d9-3.10.tar.gz
+        sha256: bbbea50ee61062bc38031729bb3897e58708d0ec7dd3d0296c37f5751055ee5c
       - type: shell
         commands:
           - ./patches/patchinstall.sh DESTDIR=$(pwd) --all
+          - patch -p1 -i staging-helper.patch
+          - patch -p1 -i wine-d3d9.patch
+          - autoreconf
     post-install:
       - rm -rf /usr/share/wine/gecko
       - ln -s /usr/lib/gecko /usr/share/wine/gecko
@@ -244,15 +250,21 @@ modules:
       - type: archive
         url: https://github.com/wine-staging/wine-staging/archive/v3.10.tar.gz
         sha256: 3f44f24dab0d59e08a2395960756a65485f0f5201dde2f8381d680ff235cf22d
+      - type: archive
+        url: https://github.com/sarnex/wine-d3d9-patches/archive/wine-d3d9-3.10.tar.gz
+        sha256: bbbea50ee61062bc38031729bb3897e58708d0ec7dd3d0296c37f5751055ee5c
       - type: shell
         commands:
           - ./patches/patchinstall.sh DESTDIR=$(pwd) --all
+          - patch -p1 -i staging-helper.patch
+          - patch -p1 -i wine-d3d9.patch
+          - autoreconf
     post-install:
       - rm -rf /usr/share/wine/gecko
       - ln -s /usr/lib/gecko /usr/share/wine/gecko
       - rm -rf /usr/share/wine/mono
       - ln -s /usr/lib/mono /usr/share/wine/mono
-      - 
+      -
       - mkdir -p /usr/lib/i386-linux-gnu/wine/bin
       - |
         for i in /usr/bin/wine*; do
