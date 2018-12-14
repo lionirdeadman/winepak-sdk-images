@@ -1,0 +1,132 @@
+build-extension: true
+
+id: org.winepak.Platform.Wine
+branch: 3.8-staging-pba
+
+runtime: org.winepak.Platform
+runtime-version: 3.0
+sdk: org.winepak.Sdk
+
+separate-locales: false
+appstream-compose: false
+
+cleanup:
+  - /man
+  - /share/man
+
+build-options:
+  cflags: -O2 -g -fstack-protector-strong -D_FORTIFY_SOURCE=2
+  cxxflags: -O2 -g -fstack-protector-strong -D_FORTIFY_SOURCE=2
+  ldflags: -fstack-protector-strong -Wl,-z,relro,-z,now
+  prefix: "${FLATPAK_DEST}"
+  env:
+    V: '1'
+
+modules:
+  - name: wine-staging-win64
+    only-arches:
+      - x86_64
+    config-opts:
+      - --enable-win64
+      - --disable-win16
+      - --disable-tests
+      - --with-x
+      - --with-ldap
+      - --with-netapi
+      - --without-cups
+      - --without-curses
+      - --without-capi
+      - --without-glu
+      - --without-gphoto
+      - --without-gsm
+      - --without-hal
+      - --without-opencl
+      - --without-pcap
+      - --without-udev
+      - --without-v4l
+    cleanup:
+      - /share/man
+      - /share/applications
+    sources:
+      - type: archive
+        url: https://dl.winehq.org/wine/source/3.x/wine-3.8.tar.xz
+        sha256: 02b00c6c948b3bab717e1b1e2075a5406b14d138bd2e01fdb1268a93d1c20d51
+      - type: archive
+        url: https://github.com/wine-staging/wine-staging/archive/v3.8.tar.gz
+        sha256: fd40c24e00b3da4498f78885a5d3c4a9699790c1de78f6e43ff151432824f2ad
+      - type: git
+        url: https://github.com/Firerat/wine-pba
+        commit: 6c9420a83aaa57e2788d68c595debdbb3d5434de
+        dest: wine-pba
+      - type: shell
+        commands:
+          - ./patches/patchinstall.sh DESTDIR=$(pwd) --all
+          - patch -p1 -i wine-pba/0001-wined3d-Initial-implementation-of-a-persistent-mappe.patch
+          - patch -p1 -i wine-pba/0002-wined3d-Add-support-for-backing-dynamic-wined3d_buff.patch
+          - patch -p1 -i wine-pba/0003-wined3d-Use-ARB_multi_bind-to-speed-up-UBO-updates.patch
+          - patch -p1 -i wine-pba/0004-wined3d-Use-GL_CLIENT_STORAGE_BIT-for-persistent-map.patch
+          - patch -p1 -i wine-pba/0005-wined3d-Disable-persistently-mapped-shader-resource-.patch
+          - patch -p1 -i wine-pba/0006-wined3d-Perform-initial-allocation-of-persistent-buf.patch
+          - patch -p1 -i wine-pba/0007-wined3d-Avoid-freeing-persistent-buffer-heap-element.patch
+          - patch -p1 -i wine-pba/0008-wined3d-Add-DISABLE_PBA-envvar-some-PBA-cleanup.patch
+          - patch -p1 -i wine-pba/0009-wined3d-Add-quirk-to-use-GL_CLIENT_STORAGE_BIT-for-m.patch
+          - patch -p1 -i wine-pba/0010-wined3d-knobs-and-switches.patch
+
+  - name: wine-staging-win32
+    only-arches:
+      - i386
+    config-opts:
+      - --disable-win64
+      - --disable-win16
+      - --disable-tests
+      - --with-x
+      - --with-ldap
+      - --with-netapi
+      - --without-cups
+      - --without-curses
+      - --without-capi
+      - --without-glu
+      - --without-gphoto
+      - --without-gsm
+      - --without-hal
+      - --without-opencl
+      - --without-pcap
+      - --without-udev
+    cleanup:
+      - /bin/function_grep.pl
+      - /include
+      - /share/man
+      - /share/applications
+    sources:
+      - type: archive
+        url: https://dl.winehq.org/wine/source/3.x/wine-3.8.tar.xz
+        sha256: 02b00c6c948b3bab717e1b1e2075a5406b14d138bd2e01fdb1268a93d1c20d51
+      - type: archive
+        url: https://github.com/wine-staging/wine-staging/archive/v3.8.tar.gz
+        sha256: fd40c24e00b3da4498f78885a5d3c4a9699790c1de78f6e43ff151432824f2ad
+      - type: git
+        url: https://github.com/Firerat/wine-pba
+        commit: 6c9420a83aaa57e2788d68c595debdbb3d5434de
+        dest: wine-pba
+      - type: shell
+        commands:
+          - ./patches/patchinstall.sh DESTDIR=$(pwd) --all
+          - patch -p1 -i wine-pba/0001-wined3d-Initial-implementation-of-a-persistent-mappe.patch
+          - patch -p1 -i wine-pba/0002-wined3d-Add-support-for-backing-dynamic-wined3d_buff.patch
+          - patch -p1 -i wine-pba/0003-wined3d-Use-ARB_multi_bind-to-speed-up-UBO-updates.patch
+          - patch -p1 -i wine-pba/0004-wined3d-Use-GL_CLIENT_STORAGE_BIT-for-persistent-map.patch
+          - patch -p1 -i wine-pba/0005-wined3d-Disable-persistently-mapped-shader-resource-.patch
+          - patch -p1 -i wine-pba/0006-wined3d-Perform-initial-allocation-of-persistent-buf.patch
+          - patch -p1 -i wine-pba/0007-wined3d-Avoid-freeing-persistent-buffer-heap-element.patch
+          - patch -p1 -i wine-pba/0008-wined3d-Add-DISABLE_PBA-envvar-some-PBA-cleanup.patch
+          - patch -p1 -i wine-pba/0009-wined3d-Add-quirk-to-use-GL_CLIENT_STORAGE_BIT-for-m.patch
+          - patch -p1 -i wine-pba/0010-wined3d-knobs-and-switches.patch
+
+  - name: metainfo
+    buildsystem: simple
+    build-commands:
+      - install -Dm644 --target-directory=${FLATPAK_DEST}/share/metainfo org.winepak.Platform.Wine.metainfo.xml
+      - appstream-compose --basename=org.winepak.Platform.Wine --prefix=${FLATPAK_DEST} --origin=flatpak org.winepak.Platform.Wine
+    sources:
+      - type: file
+        path: org.winepak.Platform.Wine.metainfo.xml
